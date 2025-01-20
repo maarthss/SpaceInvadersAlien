@@ -76,6 +76,8 @@ public class Videogame extends Application {
             }
         };
         
+        //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);        
         
         Group root = new Group();
