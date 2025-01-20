@@ -51,7 +51,7 @@ public class Videogame extends Application {
         ImageView spaceshipView = new ImageView(spaceship);
         spaceshipView.setFitHeight(130);
         spaceshipView.setFitWidth(130);
-        spaceshipView.setY(700);
+        spaceshipView.setTranslateY(670);
 
         //Alien png
         Image alien = new Image(new File(".\\src\\resources\\images\\alien.png").toURI().toString());
@@ -59,14 +59,39 @@ public class Videogame extends Application {
         alienView.setFitHeight(70);
         alienView.setFitWidth(70);
         
-        //Background picture
-        Image background = new Image(new File(".\\src\\resources\\images\\estrellas2.jpeg").toURI().toString());
-        BackgroundImage backImage = new BackgroundImage(background, null, null, null, null);
-        Background back = new Background(backImage);
+        //Generar un num random entre 0 y 600, que es l'amplada de la finestra,
+        //perque els aliens es generin a un punt aleatori de l'eix X. L'eix Y sempre es 0
+        int alienRandom = (int)(Math.random()*300);
+        System.out.println(alienRandom);
         
+        alienView.setTranslateY(0);
+        alienView.setTranslateX(alienRandom);
+
+        
+        //Background picture
+        Image background = new Image(new File(".\\src\\resources\\images\\estrellas2.jpeg").toURI().toString());        
         ImageView backView = new ImageView(background);
         backView.setFitHeight(850);
         backView.setFitWidth(600);
+        
+        TranslateTransition alienTranslate = new TranslateTransition();
+        alienTranslate.setByY(400);
+        alienTranslate.setDuration(Duration.millis(3000));
+        alienTranslate.setNode(alienView);
+        alienTranslate.play();
+        alienTranslate.setOnFinished((event) -> {
+            alienView.setVisible(false);
+        });
+
+        //Make aliens move and go down
+        /*while(vidas > 5){
+            alienTranslate.play();
+        
+            alienTranslate.setOnFinished((event) -> {
+                alienView.setVisible(false);
+            });
+        }*/
+
         
 
         EventHandler<KeyEvent> getMovement = new EventHandler<KeyEvent>(){
@@ -77,32 +102,25 @@ public class Videogame extends Application {
                 switch(event.getCode()){
                     case D, RIGHT -> tt.setByX(move);
                     case A, LEFT -> tt.setByX(-move);
-                    /*case W, UP -> tt.setByY(-move);
-                    case S, DOWN -> tt.setByY(move);*/
                 }
                 tt.play();
                 event.consume();
             }
         };
         
-        /*HBox spaceshipBox = new HBox();
-        spaceshipBox.getChildren().addAll(spaceshipView);*/
+        
                 
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);        
         
-        StackPane root = new StackPane();
-        root.setBackground(back);
-        root.getChildren().addAll(btn, spaceshipView, alienView);
+        Group root = new Group();
+        root.getChildren().addAll(backView, btn, spaceshipView, alienView);
         
         Scene scene = new Scene(root, 600, 850);
     
         
         stage.setTitle("The 8th passenger");
         stage.setScene(scene);
-        stage.setMinHeight(850);
-        stage.setMinWidth(600);
-        stage.setMaxHeight(850);
-        stage.setMaxWidth(600);
+        stage.setResizable(false);
         stage.show();
     }
 
