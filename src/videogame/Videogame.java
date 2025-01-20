@@ -29,37 +29,46 @@ import static javafx.scene.input.KeyCode.RIGHT;
 import static javafx.scene.input.KeyCode.S;
 import static javafx.scene.input.KeyCode.UP;
 import static javafx.scene.input.KeyCode.W;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 
 public class Videogame extends Application {
     
     private static final int move = 10;
+    private int vidas = 5;
+    private int score = 0;
     
     @Override
     public void start(Stage stage) {
-        
-        
+
         //ACCÉS ALS RESOURCES
-        
         Button btn = new Button();
         
         //Spaceship png
-
         Image spaceship = new Image(new File(".\\src\\resources\\images\\spaceship.png").toURI().toString());
         ImageView spaceshipView = new ImageView(spaceship);
         spaceshipView.setFitHeight(130);
         spaceshipView.setFitWidth(130);
-        
-        
-        
+        spaceshipView.setY(700);
+
         //Alien png
         Image alien = new Image(new File(".\\src\\resources\\images\\alien.png").toURI().toString());
         ImageView alienView = new ImageView(alien);
         alienView.setFitHeight(70);
         alienView.setFitWidth(70);
         
-
-
+        //Background picture
+        Image background = new Image(new File(".\\src\\resources\\images\\estrellas2.jpeg").toURI().toString());
+        BackgroundImage backImage = new BackgroundImage(background, null, null, null, null);
+        Background back = new Background(backImage);
         
+        ImageView backView = new ImageView(background);
+        backView.setFitHeight(850);
+        backView.setFitWidth(600);
+        
+
         EventHandler<KeyEvent> getMovement = new EventHandler<KeyEvent>(){
             @Override
             public void handle(KeyEvent event) {
@@ -68,25 +77,32 @@ public class Videogame extends Application {
                 switch(event.getCode()){
                     case D, RIGHT -> tt.setByX(move);
                     case A, LEFT -> tt.setByX(-move);
-                    case W, UP -> tt.setByY(-move);
-                    case S, DOWN -> tt.setByY(move);
+                    /*case W, UP -> tt.setByY(-move);
+                    case S, DOWN -> tt.setByY(move);*/
                 }
                 tt.play();
                 event.consume();
             }
         };
         
-        //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        
+        /*HBox spaceshipBox = new HBox();
+        spaceshipBox.getChildren().addAll(spaceshipView);*/
+                
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);        
         
-        Group root = new Group();
+        StackPane root = new StackPane();
+        root.setBackground(back);
         root.getChildren().addAll(btn, spaceshipView, alienView);
         
         Scene scene = new Scene(root, 600, 850);
+    
         
         stage.setTitle("The 8th passenger");
         stage.setScene(scene);
+        stage.setMinHeight(850);
+        stage.setMinWidth(600);
+        stage.setMaxHeight(850);
+        stage.setMaxWidth(600);
         stage.show();
     }
 
