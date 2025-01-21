@@ -11,10 +11,10 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -29,10 +29,14 @@ import static javafx.scene.input.KeyCode.RIGHT;
 import static javafx.scene.input.KeyCode.S;
 import static javafx.scene.input.KeyCode.UP;
 import static javafx.scene.input.KeyCode.W;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.CubicCurve;
+import javafx.scene.shape.Line;
 
 public class Videogame extends Application {
     
@@ -104,31 +108,63 @@ public class Videogame extends Application {
                     case D, RIGHT -> tt.setByX(move);
                     case A, LEFT -> tt.setByX(-move);
                 }
+                System.out.println(spaceshipView.getTranslateX());
                 tt.play();
                 event.consume();
             }
         };
         
+        
+        Button btn1 = new Button();
+        
+        
+        
         EventHandler<MouseEvent> getShooting = new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent event){
-               CubicCurve c = new CubicCurve();
-               c.setStartX(20);
-               c.setStartY(100);
-               c.setControlX1(300);
-               c.setControlX2(200);
-               c.setControlY1(100);
-               c.setControlY2(90);
-               c.setFill(Color.RED);
-               c.setEffect(new DropShadow());
+                
+                double xspaceship = spaceshipView.getTranslateX();
+                Line bullet = new Line();
+                bullet.setStartX(xspaceship);
+                bullet.setStartY(670);
+                /*bullet.setEndX(xspaceship);
+                bullet.setEndY(0);*/
+                bullet.setStroke(Color.MINTCREAM);
+                bullet.setStrokeWidth(5);
+                
+                TranslateTransition tt = new TranslateTransition(Duration.millis(1000), bullet);
+                tt.setByX(xspaceship);
+                tt.setByY(0);
+                
+                tt.play();
+                event.consume();
+               
             }
         };
         
+        //Per fer moltes linies petites que serveixen de dispars
+        //int cont = 670;
+
+        /*for(int i = 0; i < 10; i++){
+            bullet.setStartX(xspaceship);
+            System.out.println(cont);
+            bullet.setStartY(cont);
+            cont = cont - 50;
+            System.out.println(cont);
+            bullet.setEndX(xspaceship);
+            bullet.setEndY(cont);
+            System.out.println(cont);
+            bullet.setStroke(Color.MINTCREAM);
+            bullet.setStrokeWidth(5);
+        }*/
+        
                 
-        btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);        
+        btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);  
+        btn1.addEventFilter(MouseEvent.MOUSE_CLICKED, getShooting);
         
         Group root = new Group();
-        root.getChildren().addAll(backView, btn, spaceshipView, alienView);
+        root.addEventFilter(MouseEvent.MOUSE_CLICKED, getShooting);
+        root.getChildren().addAll(btn, backView, spaceshipView, alienView, btn1);
         
         Scene scene = new Scene(root, 600, 850);
     
