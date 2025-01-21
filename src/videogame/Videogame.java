@@ -61,7 +61,7 @@ public class Videogame extends Application {
         
         //Generar un num random entre 0 y 600, que es l'amplada de la finestra,
         //perque els aliens es generin a un punt aleatori de l'eix X. L'eix Y sempre es 0
-        int alienRandom = (int)(Math.random()*300);
+        int alienRandom = (int)(Math.random()*595);
         System.out.println(alienRandom);
         
         alienView.setTranslateY(0);
@@ -75,13 +75,14 @@ public class Videogame extends Application {
         backView.setFitWidth(600);
         
         TranslateTransition alienTranslate = new TranslateTransition();
-        alienTranslate.setByY(400);
-        alienTranslate.setDuration(Duration.millis(3000));
+        alienTranslate.setByY(630);
+        alienTranslate.setDuration(Duration.millis(6000));
         alienTranslate.setNode(alienView);
         alienTranslate.play();
         alienTranslate.setOnFinished((event) -> {
             alienView.setVisible(false);
         });
+        
 
         //Make aliens move and go down
         /*while(vidas > 5){
@@ -108,6 +109,20 @@ public class Videogame extends Application {
             }
         };
         
+        EventHandler<MouseEvent> getShooting = new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event){
+               CubicCurve c = new CubicCurve();
+               c.setStartX(20);
+               c.setStartY(100);
+               c.setControlX1(300);
+               c.setControlX2(200);
+               c.setControlY1(100);
+               c.setControlY2(90);
+               c.setFill(Color.RED);
+               c.setEffect(new DropShadow());
+            }
+        };
         
                 
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);        
@@ -123,6 +138,19 @@ public class Videogame extends Application {
         stage.setResizable(false);
         stage.show();
     }
+    
+    /*private void checkBounds(Shape block){
+        boolean collisionDetected = false;
+        for(Shape static_bloc : nodes){
+            if(static_bloc != block){
+                static_bloc.setFill(Color.GREEN);
+                
+                if(block.getBoundsInParen().intersects(static_bloc.getBoundsInParent())){
+                    collisionDetected = true;
+                }
+            }
+        }
+    }*/
 
     public static void main(String[] args) {
         launch(args);
