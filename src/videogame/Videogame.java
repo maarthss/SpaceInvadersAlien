@@ -55,7 +55,8 @@ public class Videogame extends Application {
         ImageView spaceshipView = new ImageView(spaceship);
         spaceshipView.setFitHeight(130);
         spaceshipView.setFitWidth(130);
-        spaceshipView.setTranslateY(670);
+        spaceshipView.setLayoutY(670);
+        spaceshipView.setLayoutX(300);
 
         //Alien png
         Image alien = new Image(new File(".\\src\\resources\\images\\alien.png").toURI().toString());
@@ -132,9 +133,10 @@ public class Videogame extends Application {
                 bullet.setStroke(Color.MINTCREAM);
                 bullet.setStrokeWidth(5);
                 
+                
                 TranslateTransition tt = new TranslateTransition(Duration.millis(1000), bullet);
-                tt.setByX(xspaceship);
-                tt.setByY(0);
+                tt.setByX(0);
+                tt.setByY(-670);
                 
                 tt.play();
                 event.consume();
@@ -144,6 +146,15 @@ public class Videogame extends Application {
         
         //Per fer moltes linies petites que serveixen de dispars
         //int cont = 670;
+        
+        /*Line line = new Line();
+        line.setStartX();
+        line.setStartY(670);
+        line.setEndX(xsp);
+        line.setEndY(100);
+        line.setStroke(Color.BLUEVIOLET);
+        line.setStrokeWidth(7);*/
+        
 
         /*for(int i = 0; i < 10; i++){
             bullet.setStartX(xspaceship);
