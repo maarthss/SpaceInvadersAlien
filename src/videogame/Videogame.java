@@ -78,7 +78,7 @@ public class Videogame extends Application {
         int alienRandom = (int)(Math.random()*595);
         System.out.println(alienRandom);
         
-        alienView.setTranslateY(0);
+        alienView.setTranslateY(-70);
         alienView.setTranslateX(alienRandom);
 
         
@@ -88,8 +88,6 @@ public class Videogame extends Application {
         backView.setFitHeight(850);
         backView.setFitWidth(600);
         
-        
-        //Fer un mètode genèric que servesqui per s'alien i pes polygon
         TranslateTransition alienTranslate = new TranslateTransition();
         alienTranslate.setByY(630);
         alienTranslate.setDuration(Duration.millis(6000));
@@ -97,8 +95,38 @@ public class Videogame extends Application {
         alienTranslate.setNode(alienView);
         alienTranslate.play();
         alienTranslate.setOnFinished((event) -> {
-            alienView.setVisible(false);
+        alienView.setVisible(false);      
         });
+        
+        
+        Timeline tl = new Timeline(new KeyFrame(Duration.seconds(2), e ->{
+            ImageView alienCopy = new ImageView(alien);
+            alienCopy.setFitWidth(70);
+            alienCopy.setFitHeight(70);
+            int alienRandom2 = (int) (Math.random() * 595);
+            alienCopy.setX(alienRandom2);
+            alienCopy.setY(-70);
+            
+            TranslateTransition copyTranslate = new TranslateTransition();
+            copyTranslate.setByY(630);
+            copyTranslate.setDuration(Duration.millis(6000));
+            copyTranslate.setCycleCount(1);
+            copyTranslate.setNode(alienCopy);
+            copyTranslate.play();
+            copyTranslate.setOnFinished(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent ev) {
+                    alienCopy.setVisible(false);
+                }
+            });
+            root.getChildren().add(alienCopy);
+
+        }));
+
+        tl.setCycleCount(Timeline.INDEFINITE);
+        tl.play();
+        
+        
         
 
         //Make aliens move and go down
