@@ -1,53 +1,38 @@
 package videogame;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import static javafx.scene.input.KeyCode.A;
 import static javafx.scene.input.KeyCode.D;
-import static javafx.scene.input.KeyCode.DOWN;
 import static javafx.scene.input.KeyCode.LEFT;
 import static javafx.scene.input.KeyCode.RIGHT;
-import static javafx.scene.input.KeyCode.S;
-import static javafx.scene.input.KeyCode.UP;
-import static javafx.scene.input.KeyCode.W;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
 
 public class Videogame extends Application {
     
     private static final int move = 10;
     private int vidas = 5;
     private int score = 0;
+    
+    private List<ImageView> aliens = new ArrayList<>();
+    private List<Line> bullets = new ArrayList<>();
     
     private Group root;
     
@@ -119,25 +104,13 @@ public class Videogame extends Application {
                     alienCopy.setVisible(false);
                 }
             });
+            aliens.add(alienCopy);
             root.getChildren().add(alienCopy);
 
         }));
 
         tl.setCycleCount(Timeline.INDEFINITE);
         tl.play();
-        
-        
-        
-
-        //Make aliens move and go down
-        /*while(vidas > 5){
-            alienTranslate.play();
-        
-            alienTranslate.setOnFinished((event) -> {
-                alienView.setVisible(false);
-            });
-        }*/
-
         
 
         EventHandler<KeyEvent> getMovement = new EventHandler<KeyEvent>(){
@@ -173,31 +146,40 @@ public class Videogame extends Application {
                 bullet.setStrokeWidth(5);
                 
                 root.getChildren().add(bullet);
-                /*Timeline bulletTimeline = new Timeline();
-                bulletTimeline.setCycleCount(2);
-                bulletTimeline.setAutoReverse(true);
-                bulletTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(5000), new KeyValue(bullet.translateXProperty(), 25)));
-                bulletTimeline.play();*/
                 
                 TranslateTransition tt = new TranslateTransition(Duration.millis(1000), bullet);
-                //tt.setByX(xspaceship);
                 tt.setByY(-670);
                 
                 tt.play();
+                bullets.add(bullet);
                 event.consume();
                 System.out.println("bullet - X1: " + bullet.getStartX() + ", Y1: " + bullet.getStartY());
-
-                
             }
         };
         
         System.out.println("alienView - X: " + alienView.getLayoutX() + ", Y: " + alienView.getLayoutY());
+        
+        
+        
+        //Codi chatgpt
+        /*Timeline collisionCheckTimeline = new Timeline(new KeyFrame(Duration.millis(16), event -> {
+            for (Line bullet : bullets) {
+                for (ImageView alien : aliens) {
+                    if (bullet.getBoundsInParent().intersects(alien.getBoundsInParent())) {
+                        // Si hay colisión, eliminamos el alien y la bala
+                        root.getChildren().remove(bullet);
+                        root.getChildren().remove(alien);
+                        bullets.remove(bullet);
+                        aliens.remove(alien);
+                        break; // Detener la búsqueda de más colisiones para esta bala
+                    }
+                }
+            }
+        }));
 
-        /*Timeline bulletTimeline = new Timeline();
-        bulletTimeline.setCycleCount(2);
-        bulletTimeline.setAutoReverse(true);
-        bulletTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(5000), new KeyValue(bullet.translateXProperty(), 25)));
-        bulletTimeline.play();*/
+        collisionCheckTimeline.setCycleCount(Timeline.INDEFINITE);
+        collisionCheckTimeline.play(); // Iniciar la verificación de colisiones en tiempo real
+    }*/
         
         
         /*Rectangle rect = new Rectangle(alienView.getLayoutX(), alienView.getLayoutY(), alienView.getFitWidth(), alienView.getFitHeight());
@@ -251,47 +233,6 @@ public class Videogame extends Application {
         stage.show();
     }
     
-    /*private void repeatBullet(ImageView spView){
-        Line bullet = new Line();
-        
-        while (vidas > 0){
-            EventHandler<MouseEvent> getShooting = new EventHandler<MouseEvent>(){
-            @Override
-                public void handle(MouseEvent event){
-                
-                    double xspaceship = spView.localToScene(spView.getBoundsInLocal()).getMinX();
-                    double spaceshipCenter = xspaceship + spView.getBoundsInLocal().getWidth() / 2;
-                    bullet.setStartX(spaceshipCenter);
-                    bullet.setStartY(670);
-                    bullet.setEndX(spaceshipCenter);
-                    bullet.setEndY(640);
-                    bullet.setStroke(Color.MINTCREAM);
-                    bullet.setStrokeWidth(5);
-                
-                    TranslateTransition tt = new TranslateTransition(Duration.millis(1000), bullet);
-                    tt.setByX(0);
-                    tt.setByY(-670);
-                
-                    tt.play();
-                    event.consume();
-                }
-            };
-        }
-    }*/
-    
-    /*private void checkBounds(Shape block){
-        boolean collisionDetected = false;
-        for(Shape static_bloc : nodes){
-            if(static_bloc != block){
-                static_bloc.setFill(Color.GREEN);
-                
-                if(block.getBoundsInParen().intersects(static_bloc.getBoundsInParent())){
-                    collisionDetected = true;
-                }
-            }
-        }
-    }*/
-
     public static void main(String[] args) {
         launch(args);
     }
