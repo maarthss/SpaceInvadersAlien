@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -38,12 +41,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 
 public class Videogame extends Application {
     
     private static final int move = 10;
     private int vidas = 5;
     private int score = 0;
+    
+    private Group root;
     
     
     
@@ -82,15 +88,6 @@ public class Videogame extends Application {
         backView.setFitHeight(850);
         backView.setFitWidth(600);
         
-        Polygon pAlien = new Polygon(
-                alienRandom, 0,
-                alienRandom + 70, 0,
-                alienRandom + 70, 70,
-                alienRandom, 70
-        );
-        pAlien.setFill(Color.TRANSPARENT);
-        pAlien.setStroke(Color.RED);
-        
         
         //Fer un mètode genèric que servesqui per s'alien i pes polygon
         TranslateTransition alienTranslate = new TranslateTransition();
@@ -98,7 +95,6 @@ public class Videogame extends Application {
         alienTranslate.setDuration(Duration.millis(6000));
         //alienTranslate.setCycleCount(move);
         alienTranslate.setNode(alienView);
-        alienTranslate.setNode(pAlien);
         alienTranslate.play();
         alienTranslate.setOnFinished((event) -> {
             alienView.setVisible(false);
@@ -133,7 +129,6 @@ public class Videogame extends Application {
         
         
         Button btn1 = new Button();
-        Line bullet = new Line();
         
         EventHandler<MouseEvent> getShooting = new EventHandler<MouseEvent>(){
             @Override
@@ -141,6 +136,7 @@ public class Videogame extends Application {
                 
                 double xspaceship = spaceshipView.localToScene(spaceshipView.getBoundsInLocal()).getMinX();
                 double spaceshipCenter = xspaceship + spaceshipView.getBoundsInLocal().getWidth() / 2;
+                Line bullet = new Line();
                 bullet.setStartX(spaceshipCenter);
                 bullet.setStartY(670);
                 bullet.setEndX(spaceshipCenter);
@@ -148,22 +144,43 @@ public class Videogame extends Application {
                 bullet.setStroke(Color.MINTCREAM);
                 bullet.setStrokeWidth(5);
                 
+                root.getChildren().add(bullet);
+                /*Timeline bulletTimeline = new Timeline();
+                bulletTimeline.setCycleCount(2);
+                bulletTimeline.setAutoReverse(true);
+                bulletTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(5000), new KeyValue(bullet.translateXProperty(), 25)));
+                bulletTimeline.play();*/
+                
                 TranslateTransition tt = new TranslateTransition(Duration.millis(1000), bullet);
-                tt.setByX(0);
+                //tt.setByX(xspaceship);
                 tt.setByY(-670);
                 
                 tt.play();
                 event.consume();
+                System.out.println("bullet - X1: " + bullet.getStartX() + ", Y1: " + bullet.getStartY());
+
                 
             }
         };
         
+        System.out.println("alienView - X: " + alienView.getLayoutX() + ", Y: " + alienView.getLayoutY());
+
+        /*Timeline bulletTimeline = new Timeline();
+        bulletTimeline.setCycleCount(2);
+        bulletTimeline.setAutoReverse(true);
+        bulletTimeline.getKeyFrames().add(new KeyFrame(Duration.millis(5000), new KeyValue(bullet.translateXProperty(), 25)));
+        bulletTimeline.play();*/
         
         
+        /*Rectangle rect = new Rectangle(alienView.getLayoutX(), alienView.getLayoutY(), alienView.getFitWidth(), alienView.getFitHeight());
+        boolean intersectionLineRect = rect.intersects(bullet.getBoundsInLocal());
+        if(intersectionLineRect){
+            System.out.println("Colision");
+        }*/
         
-        if(bullet.getBoundsInParent().intersects(alienView.getBoundsInParent())){
+        /*if(bullet.getBoundsInParent().intersects(alienView.getBoundsInParent())){
             System.out.println("Hola");
-        }
+        }*/
         //Per fer moltes linies petites que serveixen de dispars
         //int cont = 670;
         
@@ -192,10 +209,10 @@ public class Videogame extends Application {
                 
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);  
         
-        Group root = new Group();
+        root = new Group();
         
         root.addEventFilter(MouseEvent.MOUSE_CLICKED, getShooting);
-        root.getChildren().addAll(btn, backView, spaceshipView, alienView, bullet, pAlien);
+        root.getChildren().addAll(btn, backView, spaceshipView, alienView);
         
         Scene scene = new Scene(root, 600, 850);
     
