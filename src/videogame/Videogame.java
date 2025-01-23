@@ -117,7 +117,7 @@ public class Videogame extends Application {
             @Override
             public void handle(KeyEvent event) {
                 
-                TranslateTransition tt = new TranslateTransition(Duration.millis(1), spaceshipView);
+                TranslateTransition tt = new TranslateTransition(Duration.millis(0.5), spaceshipView);
                 switch(event.getCode()){
                     case D, RIGHT -> tt.setByX(move);
                     case A, LEFT -> tt.setByX(-move);
@@ -162,15 +162,16 @@ public class Videogame extends Application {
         
         
         //Codi chatgpt
-        /*Timeline collisionCheckTimeline = new Timeline(new KeyFrame(Duration.millis(16), event -> {
+        Timeline collisionCheckTimeline = new Timeline(new KeyFrame(Duration.millis(16), event -> {
             for (Line bullet : bullets) {
-                for (ImageView alien : aliens) {
-                    if (bullet.getBoundsInParent().intersects(alien.getBoundsInParent())) {
+                for (ImageView aalien : aliens) {
+                    if (bullet.getBoundsInParent().intersects(aalien.getBoundsInParent())) {
                         // Si hay colisión, eliminamos el alien y la bala
-                        root.getChildren().remove(bullet);
-                        root.getChildren().remove(alien);
-                        bullets.remove(bullet);
-                        aliens.remove(alien);
+                        //root.getChildren().remove(bullet);
+                        //root.getChildren().remove(alien);
+                        //bullets.remove(bullet);
+                        //aliens.remove(alien);
+                        System.out.println("Colisionnn");
                         break; // Detener la búsqueda de más colisiones para esta bala
                     }
                 }
@@ -179,7 +180,7 @@ public class Videogame extends Application {
 
         collisionCheckTimeline.setCycleCount(Timeline.INDEFINITE);
         collisionCheckTimeline.play(); // Iniciar la verificación de colisiones en tiempo real
-    }*/
+    
         
         
         /*Rectangle rect = new Rectangle(alienView.getLayoutX(), alienView.getLayoutY(), alienView.getFitWidth(), alienView.getFitHeight());
