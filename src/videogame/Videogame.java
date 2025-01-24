@@ -2,6 +2,7 @@ package videogame;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -23,7 +24,9 @@ import static javafx.scene.input.KeyCode.LEFT;
 import static javafx.scene.input.KeyCode.RIGHT;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 
 public class Videogame extends Application {
     
@@ -32,9 +35,15 @@ public class Videogame extends Application {
     private int score = 0;
     
     private List<ImageView> aliens = new ArrayList<>();
-    private List<Line> bullets = new ArrayList<>();
+    private List<Rectangle> bullets = new ArrayList<>();
     
     private Group root;
+    
+    Rectangle bullet = new Rectangle();
+    ImageView alienView;
+    Circle c;
+    ImageView alienCopy;
+    Circle c2;
     
     
     
@@ -54,9 +63,11 @@ public class Videogame extends Application {
 
         //Alien png
         Image alien = new Image(new File(".\\src\\resources\\images\\alien.png").toURI().toString());
-        ImageView alienView = new ImageView(alien);
+        alienView = new ImageView(alien);
         alienView.setFitHeight(70);
         alienView.setFitWidth(70);
+        
+
         
         //Generar un num random entre 0 y 600, que es l'amplada de la finestra,
         //perque els aliens es generin a un punt aleatori de l'eix X. L'eix Y sempre es 0
@@ -65,6 +76,17 @@ public class Videogame extends Application {
         
         alienView.setTranslateY(-70);
         alienView.setTranslateX(alienRandom);
+        
+        
+        //Circle de colision per alien
+        c = new Circle();
+        c.setFill(Color.GREENYELLOW);
+        c.setCenterX(alienRandom + alienView.getFitWidth() / 2);
+        c.setCenterY(-25);  
+        c.setRadius(25);
+        
+        /*L'imageView i el circle tenen diferents coordenades de referència, a posta s'han
+        d'ajustar el centerX y el centerY */
 
         
         //Background picture
@@ -83,14 +105,26 @@ public class Videogame extends Application {
         alienView.setVisible(false);      
         });
         
+        TranslateTransition ct = new TranslateTransition();
+        ct.setByY(630);
+        ct.setDuration(Duration.millis(6000));
+        ct.setNode(c);
+        ct.play();
+        
         
         Timeline tl = new Timeline(new KeyFrame(Duration.seconds(2), e ->{
-            ImageView alienCopy = new ImageView(alien);
+            alienCopy = new ImageView(alien);
             alienCopy.setFitWidth(70);
             alienCopy.setFitHeight(70);
             int alienRandom2 = (int) (Math.random() * 595);
             alienCopy.setX(alienRandom2);
             alienCopy.setY(-70);
+            
+            c2 = new Circle();
+            c2.setFill(Color.GREENYELLOW);
+            c2.setCenterX(alienRandom2 + alienCopy.getFitWidth() / 2);
+            c2.setCenterY(-25);
+            c2.setRadius(25);
             
             TranslateTransition copyTranslate = new TranslateTransition();
             copyTranslate.setByY(630);
@@ -104,8 +138,16 @@ public class Videogame extends Application {
                     alienCopy.setVisible(false);
                 }
             });
+            
+            TranslateTransition ct2 = new TranslateTransition();
+            ct2.setByY(630);
+            ct2.setDuration(Duration.millis(6000));
+            ct2.setCycleCount(1);
+            ct2.setNode(c2);
+            ct2.play();
+            
             aliens.add(alienCopy);
-            root.getChildren().add(alienCopy);
+            root.getChildren().addAll(c2, alienCopy);
 
         }));
 
@@ -137,11 +179,11 @@ public class Videogame extends Application {
                 
                 double xspaceship = spaceshipView.localToScene(spaceshipView.getBoundsInLocal()).getMinX();
                 double spaceshipCenter = xspaceship + spaceshipView.getBoundsInLocal().getWidth() / 2;
-                Line bullet = new Line();
-                bullet.setStartX(spaceshipCenter);
-                bullet.setStartY(670);
-                bullet.setEndX(spaceshipCenter);
-                bullet.setEndY(640);
+                bullet = new Rectangle();
+                bullet.setX(spaceshipCenter);
+                bullet.setY(670);
+                bullet.setWidth(2);
+                bullet.setHeight(25);
                 bullet.setStroke(Color.MINTCREAM);
                 bullet.setStrokeWidth(5);
                 
@@ -153,81 +195,47 @@ public class Videogame extends Application {
                 tt.play();
                 bullets.add(bullet);
                 event.consume();
-                System.out.println("bullet - X1: " + bullet.getStartX() + ", Y1: " + bullet.getStartY());
+                //System.out.println("bullet - X1: " + bullet.getStartX() + ", Y1: " + bullet.getStartY());
             }
         };
         
         System.out.println("alienView - X: " + alienView.getLayoutX() + ", Y: " + alienView.getLayoutY());
         
+        System.out.println("Line bounds in parent: " + bullet.getBoundsInParent());
+        System.out.println("Circle bounds in parent: " + c.getBoundsInParent());
         
         
-        //Codi chatgpt
-        Timeline collisionCheckTimeline = new Timeline(new KeyFrame(Duration.millis(16), event -> {
-            for (Line bullet : bullets) {
-                for (ImageView aalien : aliens) {
-                    if (bullet.getBoundsInParent().intersects(aalien.getBoundsInParent())) {
-                        // Si hay colisión, eliminamos el alien y la bala
-                        //root.getChildren().remove(bullet);
-                        //root.getChildren().remove(alien);
-                        //bullets.remove(bullet);
-                        //aliens.remove(alien);
-                        System.out.println("Colisionnn");
-                        break; // Detener la búsqueda de más colisiones para esta bala
-                    }
+        Timeline bulletMovement = new Timeline(new KeyFrame(Duration.millis(16), event ->{
+            Iterator<Rectangle> bulletIterator = bullets.iterator();
+            while(bulletIterator.hasNext()){
+                bullet = bulletIterator.next();
+                //bullet.setX(bullet.getX() + 5);
+                
+                if(bullet.getBoundsInParent().intersects(c.getBoundsInParent())){
+                    System.out.println("Col");
+                    root.getChildren().remove(bullet);
+                    bulletIterator.remove();
+                }
+                
+                if(bullet.getX() > 800){
+                    root.getChildren().remove(bullet);
+                    bulletIterator.remove();
                 }
             }
         }));
-
-        collisionCheckTimeline.setCycleCount(Timeline.INDEFINITE);
-        collisionCheckTimeline.play(); // Iniciar la verificación de colisiones en tiempo real
-    
         
-        
-        /*Rectangle rect = new Rectangle(alienView.getLayoutX(), alienView.getLayoutY(), alienView.getFitWidth(), alienView.getFitHeight());
-        boolean intersectionLineRect = rect.intersects(bullet.getBoundsInLocal());
-        if(intersectionLineRect){
-            System.out.println("Colision");
-        }*/
-        
-        /*if(bullet.getBoundsInParent().intersects(alienView.getBoundsInParent())){
-            System.out.println("Hola");
-        }*/
-        //Per fer moltes linies petites que serveixen de dispars
-        //int cont = 670;
-        
-        /*Line line = new Line();
-        line.setStartX();
-        line.setStartY(670);
-        line.setEndX(xsp);
-        line.setEndY(100);
-        line.setStroke(Color.BLUEVIOLET);
-        line.setStrokeWidth(7);*/
-        
-
-        /*for(int i = 0; i < 10; i++){
-            bullet.setStartX(xspaceship);
-            System.out.println(cont);
-            bullet.setStartY(cont);
-            cont = cont - 50;
-            System.out.println(cont);
-            bullet.setEndX(xspaceship);
-            bullet.setEndY(cont);
-            System.out.println(cont);
-            bullet.setStroke(Color.MINTCREAM);
-            bullet.setStrokeWidth(5);
-        }*/
-        
-                
+        bulletMovement.setCycleCount(Timeline.INDEFINITE);
+        bulletMovement.play();
+      
         btn.addEventFilter(KeyEvent.KEY_PRESSED, getMovement);  
         
         root = new Group();
         
         root.addEventFilter(MouseEvent.MOUSE_CLICKED, getShooting);
-        root.getChildren().addAll(btn, backView, spaceshipView, alienView);
+        root.getChildren().addAll(btn, backView, spaceshipView, c, alienView);
         
         Scene scene = new Scene(root, 600, 850);
-    
-        
+
         stage.setTitle("The 8th passenger");
         stage.setScene(scene);
         stage.setResizable(false);
