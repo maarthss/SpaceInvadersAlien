@@ -72,7 +72,7 @@ public class Videogame extends Application {
     private double intervalDecrement = 0.2;
     private double minInterval = 0.5;
     
-    //Comptador intern de les vides
+    //Comptador intern per dur el control de la dificultat del joc
     private int cont = 0;
     
     private Text textScore;
@@ -244,21 +244,29 @@ public class Videogame extends Application {
             c2.setCenterY(-25);
             c2.setRadius(25);
             
-            
+            //Es crea un nou objecte alien per després verificar si s'ha destruit l'alien o no
             Alien a = new Alien(alienCopy, c2);
 
+            //Gestió del moviment de l'alien
             TranslateTransition aTransition = new TranslateTransition(Duration.millis(alienDuration), alienCopy);
             aTransition.setByY(670);
             
+            //Quan l'animació de l'alien acaba es mira si la llista d'ImageViews definida al principi conté l'imageView actual i 
+            //si l'alien ha estat destruït
             aTransition.setOnFinished(ev -> Platform.runLater(() -> {
                 
                 if(aliens.contains(alienCopy) && !a.isDestroyed()){
+                    //En cas de que si hagi estat destruit o de que si formi part de la llista, es resta una vida i es crida al mètode loseLife, que 
+                    //actualitza els cors de vida de la interfície
                     vidas--;
                     loseLife();
                     
+                    //Si les vides són menors o iguals a 0 es crida al mètode gameOver, que acaba el joc 
                     if(vidas <= 0){
                         try {
                             gameOver();
+                            
+                            //Efecte de so per quan s'acaben les vides
                             MediaPlayer deathPlayer = new MediaPlayer(death);
                             deathPlayer.setVolume(0.3);
                             deathPlayer.play();
@@ -269,14 +277,17 @@ public class Videogame extends Application {
                     }
                 }
                 
+                //Quan s'acaba l'animació de l'alien es lleva el cercle i l'alien de la seva respectiva llista
                 aliens.remove(alienCopy);
                 circles.remove(c2);
-                root.getChildren().removeAll(alienCopy, c2);
+                root.getChildren().removeAll(alienCopy, c2); //També s'eliminen de l'interfície
             }));
 
+            //Gestió de l'animació del cercle que envolta l'alien
             TranslateTransition cTransition = new TranslateTransition(Duration.millis(alienDuration), c2);
             cTransition.setByY(670);
 
+            //S'afegeix l'alien i el cercle actual a les seves respectives llistes i s'afegeixen a l'interfície
             aliens.add(alienCopy);
             circles.add(c2);
             root.getChildren().addAll(c2, alienCopy);
@@ -284,12 +295,19 @@ public class Videogame extends Application {
             aTransition.play();
             cTransition.play();
 
+            //El comptador suma un per cada alien que es crea
             cont++;
+            //Si el comptador arriba a 5: 
             if (cont == 5) {
+                
+                //Es mira si la duració de lo que tarda l'alien en baixar es major a la duració minima(definida gloobalment)
                 if (alienDuration > minDuration) {
+                    //Si es major, es decrementa 
                     alienDuration -= durationDecrement;
                 }
 
+                //També es mira la freqüència amb sa que surten els aliens. Globalment hi ha un interval definit i un interval minim (com a la duracio)
+                //Si la freqüència és major que la minima es decrementa
                 if (alienInterval > minInterval) {
                     alienInterval -= intervalDecrement;
                     alienTimeline.stop();
@@ -302,26 +320,35 @@ public class Videogame extends Application {
     }
     
     
+    //Mètode que serveix per detectar les colisions
     private void detectCollisions() {
+        
+        //Es crea una llista per cada item que tenim per emmagatzemar de cada un els que tenim que borrar 
         List<Rectangle> bulletsToRemove = new ArrayList<>();
         List<ImageView> aliensToRemove = new ArrayList<>();
         List<Circle> circlesToRemove = new ArrayList<>();
 
-    // Detectar colisiones
+        //Es recorr la llista de bales, i com que si estàn allà significa que no s'han eliminat, establim un booleà amb valor false
         for (Rectangle bullet : bullets) {
             boolean bulletRemoved = false;
 
+            //Recorrem la llista d'aliens i per cada iteració cream un alien i un cercle, i cream un objecte alien que crida a un mètode que gestiona l'alien actual
             for (int i = 0; i < aliens.size(); i++) {
                 ImageView alien = aliens.get(i);
                 Circle circle = circles.get(i);
                 Alien a = currentAlien(alien);
 
+                //Miram si la bala i el cercle s'initersecten
                 if (bullet.getBoundsInParent().intersects(circle.getBoundsInParent())) {
                     
+                    //Si s'intersecten canviam l'estat del mètode booleà d'alien a true
                     a.setIsDestroyed(true);
+                    
+                    //Augmentam els punts
                     score += 30;
                     textScore.setText("SCORE: " + Integer.toString(score));
                     
+                    //Afegim a les llistes de "basura" cada item que volem borrar
                     aliensToRemove.add(alien);
                     circlesToRemove.add(circle);
                     bulletsToRemove.add(bullet);
@@ -330,24 +357,27 @@ public class Videogame extends Application {
                 }
             }
 
-            // Si la bala sale de la pantalla, marcarla para eliminar
+            //Ens asseguram de que la bala quan surti de la pantalla s'elimini
             if (!bulletRemoved && bullet.getTranslateY() <= -670) {
                 bulletsToRemove.add(bullet);
             }
         }
 
-        // Eliminar los elementos marcados
+
+        //Eliminam de les llistes tots els items que hi ha a les llistes "basura"
         Platform.runLater(() -> {
             bullets.removeAll(bulletsToRemove);
             aliens.removeAll(aliensToRemove);
             circles.removeAll(circlesToRemove);
 
+            //Els eliminam de l'interfície
             root.getChildren().removeAll(bulletsToRemove);
             root.getChildren().removeAll(aliensToRemove);
             root.getChildren().removeAll(circlesToRemove);
         });
     }
     
+    //Mètode que serveix per retornar l'alien i el cercle actual
     public Alien currentAlien(ImageView av){
         for(int i = 0; i < aliens.size(); i++){
             if(aliens.get(i).equals(av)){
@@ -358,6 +388,7 @@ public class Videogame extends Application {
         return null;
     }
     
+    //Mètode que gestiona com s'eliminen les vides a l'interfície
     private void loseLife(){
      
         Platform.runLater(() -> {
@@ -371,6 +402,7 @@ public class Videogame extends Application {
         });
     }
     
+    //Mètode que acaba el joc i passa a la següent pantalla (la de game over)
     private void gameOver() throws Exception{
         System.out.println ("Game Over");
         alienTimeline.stop();
